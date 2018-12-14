@@ -10,7 +10,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -72,9 +76,11 @@ public class Game {
 	/** 맵(실제 라운드맵 카운팅) */
 	public static int map = 1;
 	/** 충돌위치 저장리스트 */
-	ArrayList<PlatForm> list_plat = new ArrayList<>();
+	static ArrayList<PlatForm> list_plat = new ArrayList<>();
 	/** 아이템 위치 저장테이블 */
-	Hashtable<String, Item> table_item = new Hashtable<>();
+	static Hashtable<String, Item> table_item = new Hashtable<>();
+
+	private BufferedImage image;
 
 	/** 생성자 클래스 (한번초기화되는부분) */
 	public Game() {
@@ -92,6 +98,15 @@ public class Game {
 		frame.addMouseListener(listener_click);
 
 		// frame.setLocation(100,500);
+
+		// image초기화부분
+//		try {
+//			image = ImageIO.read(
+//					new File("Iron_Man_96px.png"));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		/// 단 한번 초기화 되는부분
 		setMap();
@@ -165,6 +180,11 @@ public class Game {
 					&& pos_x <= plat.getPoint_2_x() + SIZE / 2.5) {
 				pos_x = plat.getPoint_2_x() + SIZE / 2.5;
 			}
+			// 맵충돌또는 초기화
+			if (pos_y > MAX_HEIGHT || pos_x < 0 || pos_x > MAX_WIDTH) {
+				System.out.println("OUT_OF_MAP");
+				reset_pos();
+			}
 		}
 	}
 
@@ -186,7 +206,9 @@ public class Game {
 		table_item.put("item_2", new Item_2(1500, 600));
 		table_item.put("item_bad_1", new Item_Bad(750, 450));
 		table_item.put("item_bad_1_2", new Item_Bad(878 - 15, 579 - 40));
-
+		table_item.put("item_bad_1_3", new Item_Bad(150, 300));
+		table_item.put("item_bad_1_4", new Item_Bad(1300, 500));
+		table_item.put("item_bad_1_5", new Item_Bad(1300, 500));
 	}
 
 	/** 아이템획득시 이벤트관리메소드 */
@@ -281,15 +303,25 @@ public class Game {
 	}
 
 	/** 다음맵 세팅 메소드 */
-	public boolean NextMap() {
+	public static boolean NextMap() {
 
-		if (map == 2) {
-
-			// 맵맵맵맵맵
-
+		Iterator<PlatForm> iter_plat = list_plat.iterator();
+		while (iter_plat.hasNext()) {
+			PlatForm p = iter_plat.next();
+			p.setPoint(50, 110);
 		}
 
-		return true;
+		if (map == 2) {
+			set_check_point();
+
+			list_plat.get(0).setPoint(330, 190);
+			list_plat.get(1).setPoint(660, 190);
+			list_plat.get(2).setPoint(500, 350);
+			// 맵맵맵맵맵
+			return true;
+		}
+
+		return false;
 	}
 
 	/** 공격 메소드 */
@@ -311,10 +343,10 @@ public class Game {
 			String s = iter_table_item.next();
 			if (s.contains("bad")) {
 				Item i = table_item.get(s);
-				
+
 				if (rand.nextInt(15) == 7) {
-					i.setVec_x(rand.nextInt(5)-rand.nextInt(5));
-					i.setVec_y(rand.nextInt(5)-rand.nextInt(5));
+					i.setVec_x(rand.nextInt(5) - rand.nextInt(5));
+					i.setVec_y(rand.nextInt(5) - rand.nextInt(5));
 				}
 
 				i.setPos_x(i.getPos_x() + i.getVec_x() * SPEED);
@@ -322,6 +354,19 @@ public class Game {
 			}
 		}
 		return false;
+	}
+
+	/** 위치리셋 메소드 */
+	public void reset_pos() {
+		// TODO Auto-generated method stub
+		pos_x = round_x;
+		pos_y = round_y;
+	}
+
+	/** 체크포인트 좌표설정 */
+	public static void set_check_point() {
+		round_x = pos_x;
+		round_y = pos_y;
 	}
 
 	/** 패널 클래스(화면생성, 스케줄러에서 사용됨) */

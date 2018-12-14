@@ -72,6 +72,7 @@ class Item_1 extends Item {
 			Game.SCENE_SWITCH = true;
 			this.setPos_x(100);
 			this.setPos_y(50);
+			Game.set_check_point();
 		}
 
 		if (Game.round == 2) { // 창줄음
@@ -80,16 +81,25 @@ class Item_1 extends Item {
 			Game.SCENE_SWITCH = false;
 			this.setPos_x(200);
 			this.setPos_y(50);
+			Game.set_check_point();
 		}
-		if (Game.round == 3 && Game.map == 1) {
+		if (Game.round == 3 && Game.map == 1) {// 창커짐 , 창이동
 			Game.SCENE_SWITCH = true;
 			Game.WINDOW_SWITCH = false;
 			Game.frame.setLocation(0, 0);
 			Game.MAX_WIDTH = 800;
 			Game.MAX_HEIGHT = (int) (Game.MAX_WIDTH * 0.618);
 			Game.map++;
-			this.setPos_x(1000);
-			this.setPos_y(800);
+			this.setPos_x(700);
+			this.setPos_y(130);
+			Game.NextMap();
+
+		}
+		if (Game.round == 4 && Game.map == 2) {
+			Game.SCENE_SWITCH = true;
+			Game.MAX_HEIGHT = 800;
+			Game.GROUND = Game.MAX_HEIGHT + 100;
+			Game.set_check_point();
 		}
 		System.out.println("event_get_item_1 , round : " + Game.round);
 
@@ -109,6 +119,7 @@ class Item_2 extends Item {
 		// TODO Auto-generated method stub
 		Game.WINDOW_SWITCH = true;
 		System.out.println("event_get_item_2 , WindowMove ");
+		Game.set_check_point();
 		this.delete();
 	}
 

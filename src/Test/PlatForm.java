@@ -29,4 +29,35 @@ public class PlatForm {
 		return point_2_y;
 	}
 
+	public void setPoint_1_x(int point_1_x) {
+		this.point_1_x = point_1_x;
+	}
+
+	public void setPoint_1_y(int point_1_y) {
+		this.point_1_y = point_1_y;
+	}
+
+	public void setPoint_2_x(int point_2_x) {
+		this.point_2_x = point_2_x;
+	}
+
+	public void setPoint_2_y(int point_2_y) {
+		this.point_2_y = point_2_y;
+	}
+
+	public void setPoint_1(int point_1_x, int point_1_y) {
+		this.point_1_x = point_1_x;
+		this.point_1_y = point_1_y;
+	}
+
+	public void setPoint_2(int point_2_x, int point_2_y) {
+		this.point_2_x = point_2_x;
+		this.point_2_y = point_2_y;
+	}
+
+	public void setPoint(int point_1_x, int point_1_y) {
+		this.setPoint_1(point_1_x, point_1_y);
+		this.setPoint_2(point_1_x + 150, point_1_y + 30);
+	}
+
 }
