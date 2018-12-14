@@ -73,25 +73,50 @@ public class Game {
 	public static boolean WINDOW_SWITCH = false;
 	/** 라운드(창이동과 크기변경에 속하는 변수 */
 	public static int round = 0;
-	/** 맵(실제 라운드맵 카운팅) */
+	/** 맵(실제 라운드 카운팅) */
 	public static int map = 1;
 	/** 충돌위치 저장리스트 */
 	static ArrayList<PlatForm> list_plat = new ArrayList<>();
 	/** 아이템 위치 저장테이블 */
 	static Hashtable<String, Item> table_item = new Hashtable<>();
 
-	private BufferedImage image;
+	/** 배경이미지*/
+	private BufferedImage background_image;
+	
+	/** 캐릭터 이미지*/
+	private BufferedImage character_image;
+	
+	/** 벽 이미지*/
+	private BufferedImage wall_image;
 
+	/** 적 이미지*/
+	private BufferedImage enemy_image;
+	
+	//** black 아이템 이미지 */
+	private BufferedImage black_item_image;
+	
+	//** red 아이템 이미지*/
+	private BufferedImage red_item_image;
 	/** 생성자 클래스 (한번초기화되는부분) */
 	public Game() {
+		// image초기화부분
+		background_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Iron_Man_96px.png");
+		character_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Tomato_48px.png");
+		wall_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Canada_96px.png");
+		enemy_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\spr_call_1.png");
+		black_item_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Pill_96px.png");
+		red_item_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\HelloWorld.png");
+		
 		frame = new JFrame("GAME");
 		MyPanel panel = new MyPanel();
 		frame.setContentPane(panel);
+
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(WIDTH, HEIGHT);
 		frame.setVisible(true);
 
+		
 		listen_key listener_key = new listen_key();
 		listen_click listener_click = new listen_click();
 		frame.addKeyListener(listener_key);
@@ -99,19 +124,23 @@ public class Game {
 
 		// frame.setLocation(100,500);
 
-		// image초기화부분
-//		try {
-//			image = ImageIO.read(
-//					new File("Iron_Man_96px.png"));
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		
 
 		/// 단 한번 초기화 되는부분
 		setMap();
 
 		///
+	}
+
+	/** 이미지 초기화*/
+	private BufferedImage init_image(String file) {
+		try {
+			return ImageIO.read(new File(file));
+		}catch(Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+			return background_image;
+		}
 	}
 
 	/** 스케줄러(매번초기화됨) */
@@ -373,35 +402,37 @@ public class Game {
 	private class MyPanel extends JPanel {
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-
-			g.setColor(Color.GREEN);
-			g.fillOval((int) pos_x, (int) pos_y, SIZE, SIZE);
+			//** 배경이미지 삽입*/
+			g.drawImage(background_image,0,0,MAX_WIDTH,MAX_HEIGHT,this);
+			
+			//** 캐릭터이미지 삽입*/
+			g.drawImage(character_image,(int)pos_x,(int)pos_y,this);
 
 			Iterator<PlatForm> iter_list_plat = list_plat.iterator();
 			Set<String> keys = table_item.keySet();
 			Iterator<String> iter_table_item = keys.iterator();
 
-			g.setColor(Color.BLUE);
 			while (iter_list_plat.hasNext()) {
 				PlatForm p = iter_list_plat.next();
-				g.fillRect(p.getPoint_1_x() + 10, p.getPoint_1_y() - 30, 150, 30);
+				//** 벽이미지 삽입 */
+				g.drawImage(wall_image, p.getPoint_1_x() + 10, p.getPoint_1_y() - 30, 150, 30, this);
 			}
 
-			g.setColor(Color.BLACK);
-			g.fillOval((int) table_item.get("item_1").getPos_x(), (int) table_item.get("item_1").getPos_y(),
-					(int) (SIZE / 1.5), (int) (SIZE / 1.5));
-
-			g.setColor(Color.RED);
-			g.fillOval((int) table_item.get("item_2").getPos_x(), (int) table_item.get("item_2").getPos_y(),
-					(int) (SIZE / 1.5), (int) (SIZE / 1.5));
-
-			g.setColor(Color.ORANGE);
+			
+			//**black 이미지 삽입*/
+			g.drawImage(black_item_image,(int) table_item.get("item_1").getPos_x(), (int) table_item.get("item_1").getPos_y(),
+					(int) (SIZE / 1.5), (int) (SIZE / 1.5),this);
+			
+			//** red 이미지 삽입 */
+			g.drawImage(red_item_image,(int) table_item.get("item_2").getPos_x(), (int) table_item.get("item_2").getPos_y(),
+					(int) (SIZE / 1.5), (int) (SIZE / 1.5),this);
+			
 			while (iter_table_item.hasNext()) {
-
 				String s = iter_table_item.next();
 				if (s.contains("bad")) {
 					Item i = table_item.get(s);
-					g.fillOval((int) i.getPos_x(), (int) i.getPos_y(), (int) (SIZE / 1.5), (int) (SIZE / 1.5));
+					//** 적 이미지 삽입*/
+					g.drawImage(enemy_image,(int) i.getPos_x(), (int) i.getPos_y(), (int) (SIZE / 1.5), (int) (SIZE / 1.5),this);
 				}
 			}
 
