@@ -1,30 +1,26 @@
 package Test;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import javafx.scene.Scene;
-
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class Game {
 
@@ -36,7 +32,7 @@ public class Game {
 	/** 게임스피드(default = 0.5) */
 	public static final double SPEED = 0.65;
 	/** 케릭터사이즈 */
-	public static final int SIZE = 25;
+	public static final int SIZE = 35;
 	/** 케릭터 점프 Vector(힘) */
 	public static final int JUMP_POWER = 50;
 	/** 중력가속도 */
@@ -75,48 +71,65 @@ public class Game {
 	public static int round = 0;
 	/** 맵(실제 라운드 카운팅) */
 	public static int map = 1;
+	/** 발판 이동 트리거 변수 */
+	public static boolean isMove = false;
+
+	/** 더미자료구조 */
+	int[] dummy = new int[10];
+
 	/** 충돌위치 저장리스트 */
 	static ArrayList<PlatForm> list_plat = new ArrayList<>();
 	/** 아이템 위치 저장테이블 */
 	static Hashtable<String, Item> table_item = new Hashtable<>();
 
-	/** 배경이미지*/
+	/** 배경이미지 */
 	private BufferedImage background_image;
-	
-	/** 캐릭터 이미지*/
-	private BufferedImage character_image;
-	
-	/** 벽 이미지*/
+	/** 캐릭터 이미지 */
+	private BufferedImage[] character_image;
+	/** 벽 이미지 */
 	private BufferedImage wall_image;
-
-	/** 적 이미지*/
-	private BufferedImage enemy_image;
-	
-	//** black 아이템 이미지 */
-	private BufferedImage black_item_image;
-	
-	//** red 아이템 이미지*/
+	/** 적 이미지 */
+	private BufferedImage[] enemy_image;
+	/** black 아이템 이미지 */
+	private BufferedImage[] black_item_image;
+	/** red 아이템 이미지 */
 	private BufferedImage red_item_image;
+
 	/** 생성자 클래스 (한번초기화되는부분) */
 	public Game() {
 		// image초기화부분
-		background_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Iron_Man_96px.png");
-		character_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Tomato_48px.png");
-		wall_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Canada_96px.png");
-		enemy_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\spr_call_1.png");
-		black_item_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\Pill_96px.png");
-		red_item_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\HelloWorld.png");
-		
+		background_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\background.png");
+		character_image = new BufferedImage[] {
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_1_right.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_2_right.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_3_right.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_jump_right.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_1_left.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_2_left.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_3_left.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\mario_jump_left.png"), };
+		wall_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\wall_2.png");
+		enemy_image = new BufferedImage[] {
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\enemy_1.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\enemy_2.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\enemy_3.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\enemy_4.png") };
+		black_item_image = new BufferedImage[] {
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\coin_2.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\coin_3.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\coin_4.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\coin_5.png"),
+				init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\coin_6.png") };
+		red_item_image = init_image("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\stat.png");
+
 		frame = new JFrame("GAME");
 		MyPanel panel = new MyPanel();
 		frame.setContentPane(panel);
-
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(WIDTH, HEIGHT);
 		frame.setVisible(true);
 
-		
 		listen_key listener_key = new listen_key();
 		listen_click listener_click = new listen_click();
 		frame.addKeyListener(listener_key);
@@ -124,19 +137,18 @@ public class Game {
 
 		// frame.setLocation(100,500);
 
-		
-
 		/// 단 한번 초기화 되는부분
 		setMap();
+		startMusic("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\music_super.wav");
 
 		///
 	}
 
-	/** 이미지 초기화*/
+	/** 이미지 초기화 */
 	private BufferedImage init_image(String file) {
 		try {
 			return ImageIO.read(new File(file));
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
 			return background_image;
@@ -155,6 +167,8 @@ public class Game {
 			MoveWindow();
 			EnemyMover();
 
+			if (isMove)
+				plat_mover();
 			// if (SCENE_SWITCH) {
 			if (Scene_change(MAX_WIDTH, MAX_HEIGHT)) {
 				SCENE_SWITCH = false;
@@ -232,12 +246,15 @@ public class Game {
 		list_plat.add(new PlatForm(50, 110, 200, 140));
 
 		table_item.put("item_1", new Item_1(965, 150));
-		table_item.put("item_2", new Item_2(1500, 600));
+		table_item.put("item_2", new Item_2(1200, 600));
 		table_item.put("item_bad_1", new Item_Bad(750, 450));
 		table_item.put("item_bad_1_2", new Item_Bad(878 - 15, 579 - 40));
 		table_item.put("item_bad_1_3", new Item_Bad(150, 300));
 		table_item.put("item_bad_1_4", new Item_Bad(1300, 500));
 		table_item.put("item_bad_1_5", new Item_Bad(1300, 500));
+		table_item.put("item_bad_1_6", new Item_Bad(500, 900));
+		table_item.put("item_bad_1_7", new Item_Bad(100, 100));
+		table_item.put("item_bad_1_8", new Item_Bad(500, 500));
 	}
 
 	/** 아이템획득시 이벤트관리메소드 */
@@ -345,7 +362,12 @@ public class Game {
 
 			list_plat.get(0).setPoint(330, 190);
 			list_plat.get(1).setPoint(660, 190);
-			list_plat.get(2).setPoint(500, 350);
+			list_plat.get(2).setPoint(500, 380);
+			list_plat.get(3).setPoint(50, 640);// move
+			list_plat.get(4).setPoint(50, 720);
+			list_plat.get(5).setPoint(300, 800);
+			list_plat.get(6).setPoint(600, 800);
+			list_plat.get(7).setPoint(600, 510);// move
 			// 맵맵맵맵맵
 			return true;
 		}
@@ -398,44 +420,100 @@ public class Game {
 		round_y = pos_y;
 	}
 
+	/** 플렛폼 이동메소드 */
+	public void plat_mover() {
+		if (map == 2) {
+			PlatForm p1 = list_plat.get(3);// 아랫놈
+			PlatForm p2 = list_plat.get(7);// 윗놈
+			if (dummy[2] == 0) {
+				dummy[0] = p1.getPoint_1_x(); // 이동가능한 최저 x좌표
+				dummy[1] = p2.getPoint_1_x(); // 이동가능한 최고 x좌표
+				dummy[2] = 1;
+			}
+
+			if (p1.getPoint_1_x() < dummy[0])
+				p1.setVec(5);
+			if (p1.getPoint_1_x() > dummy[1])
+				p1.setVec(-5);
+			if (p2.getPoint_1_x() < dummy[0])
+				p2.setVec(5);
+			if (p2.getPoint_1_x() > dummy[1])
+				p2.setVec(-5);
+
+			p1.setPoint_1(p1.getPoint_1_x() + p1.getVec(), p1.getPoint_1_y());
+			p2.setPoint_1(p2.getPoint_1_x() + p2.getVec(), p2.getPoint_1_y());
+
+		}
+	}
+
+	/** 소리관리 메소드 */
+	public static void startMusic(String file) {
+		try {
+			Clip o = AudioSystem.getClip();
+			o.open(AudioSystem.getAudioInputStream(new File(file)));
+			o.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	/** 패널 클래스(화면생성, 스케줄러에서 사용됨) */
 	private class MyPanel extends JPanel {
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			//** 배경이미지 삽입*/
-			g.drawImage(background_image,0,0,MAX_WIDTH,MAX_HEIGHT,this);
-			
-			//** 캐릭터이미지 삽입*/
-			g.drawImage(character_image,(int)pos_x,(int)pos_y,this);
+			// ** 배경이미지 삽입*/
+			g.drawImage(background_image, 0, 0, MAX_WIDTH, MAX_HEIGHT, this);
 
+			// ** 캐릭터이미지 삽입*/
+
+			if (vec_x >= 0) { // 우측
+				if (vec_jump > 0)
+					g.drawImage(character_image[3], (int) pos_x, (int) pos_y, this);
+				else {
+					g.drawImage(character_image[dummy[6] % 3], (int) pos_x, (int) pos_y, this);
+				}
+			}
+			if (vec_x < 0) {// 좌측
+				if (vec_jump > 0)
+					g.drawImage(character_image[7], (int) pos_x, (int) pos_y, this);
+				else {
+					g.drawImage(character_image[dummy[6] % 3 + 4], (int) pos_x, (int) pos_y, this);
+				}
+			}
+			if (dummy[5]++ > 5) {
+				dummy[5] = 0;
+				dummy[6]++;
+			}
 			Iterator<PlatForm> iter_list_plat = list_plat.iterator();
 			Set<String> keys = table_item.keySet();
 			Iterator<String> iter_table_item = keys.iterator();
 
 			while (iter_list_plat.hasNext()) {
 				PlatForm p = iter_list_plat.next();
-				//** 벽이미지 삽입 */
-				g.drawImage(wall_image, p.getPoint_1_x() + 10, p.getPoint_1_y() - 30, 150, 30, this);
+				// ** 벽이미지 삽입 */
+				g.drawImage(wall_image, p.getPoint_1_x() + 20, p.getPoint_1_y() - 20, 150, 30, this);
 			}
 
-			
-			//**black 이미지 삽입*/
-			g.drawImage(black_item_image,(int) table_item.get("item_1").getPos_x(), (int) table_item.get("item_1").getPos_y(),
-					(int) (SIZE / 1.5), (int) (SIZE / 1.5),this);
-			
-			//** red 이미지 삽입 */
-			g.drawImage(red_item_image,(int) table_item.get("item_2").getPos_x(), (int) table_item.get("item_2").getPos_y(),
-					(int) (SIZE / 1.5), (int) (SIZE / 1.5),this);
-			
+			// **black 이미지 삽입*/
+			g.drawImage(black_item_image[dummy[4] / 10], (int) table_item.get("item_1").getPos_x(),
+					(int) table_item.get("item_1").getPos_y(), (int) (SIZE), (int) (SIZE), this);
+
+			// ** red 이미지 삽입 */
+			g.drawImage(red_item_image, (int) table_item.get("item_2").getPos_x(),
+					(int) table_item.get("item_2").getPos_y(), (int) (SIZE * 1.5), (int) (SIZE * 1.5), this);
+
 			while (iter_table_item.hasNext()) {
 				String s = iter_table_item.next();
 				if (s.contains("bad")) {
 					Item i = table_item.get(s);
-					//** 적 이미지 삽입*/
-					g.drawImage(enemy_image,(int) i.getPos_x(), (int) i.getPos_y(), (int) (SIZE / 1.5), (int) (SIZE / 1.5),this);
+					// ** 적 이미지 삽입*/
+					g.drawImage(enemy_image[1], (int) i.getPos_x(), (int) i.getPos_y(), (int) (SIZE * 1.2),
+							(int) (SIZE * 1.2), this);
 				}
 			}
-
+			dummy[4] = (dummy[4] + 1) % 25;
 			// Graphics2D g2 = (Graphics2D) g;
 
 		}
@@ -470,6 +548,7 @@ public class Game {
 					time = 0;
 					vec_jump = JUMP_POWER;
 					System.out.println("KEY_SPACE_PRESSED");
+					startMusic("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\music_jump.wav");
 				}
 			}
 			if (k.getKeyCode() == k.VK_V) {
@@ -540,6 +619,7 @@ public class Game {
 		public void mousePressed(MouseEvent k) {
 			// TODO Auto-generated method stub
 			System.out.println("(" + k.getX() + "," + k.getY() + ") PRESSED");
+			table_item.put(String.format("item_bad_1_%d", dummy[7]++ + 9), new Item_Bad(k.getX(), k.getY()));
 		}
 
 		@Override

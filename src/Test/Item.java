@@ -68,7 +68,7 @@ class Item_1 extends Item {
 		Game.round++;
 		this.delete();
 		if (Game.round == 1) { // Ã¢Ä¿Áü
-			Game.MAX_WIDTH = 1600;
+			Game.MAX_WIDTH = 1314;
 			Game.SCENE_SWITCH = true;
 			this.setPos_x(100);
 			this.setPos_y(50);
@@ -98,11 +98,34 @@ class Item_1 extends Item {
 		if (Game.round == 4 && Game.map == 2) {
 			Game.SCENE_SWITCH = true;
 			Game.MAX_HEIGHT = 800;
-			Game.GROUND = Game.MAX_HEIGHT + 100;
+			Game.GROUND = Game.MAX_HEIGHT;
+			this.setPos_x(125);
+			this.setPos_y(640);
 			Game.set_check_point();
 		}
-		System.out.println("event_get_item_1 , round : " + Game.round);
+		if (Game.round == 5 && Game.map == 2) {
+			Game.SCENE_SWITCH = true;
+			Game.MAX_HEIGHT = 870;
+			Game.GROUND = Game.MAX_HEIGHT;
+			this.setPos_x(675);
+			this.setPos_y(750);
+			Game.set_check_point();
+		}
+		if (Game.round == 6 && Game.map == 2) {
+			Game.isMove = true;
+			this.setPos_x(580);
+			this.setPos_y(270);
+			Game.set_check_point();
+		}
+		if (Game.round == 7 && Game.map == 2) {
+			Game.isMove = false;
+			Game.set_check_point();
+			Game.SCENE_SWITCH = true;
+			Game.MAX_WIDTH = 1000;
+		}
 
+		System.out.println("event_get_item_1 , round : " + Game.round);
+		Game.startMusic("C:\\Users\\DB2\\eclipse-workspace\\MARIO_BETA\\src\\Test\\music_coin.wav");
 	}
 }
 

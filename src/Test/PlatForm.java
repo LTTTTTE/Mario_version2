@@ -1,16 +1,19 @@
 package Test;
 
+
 public class PlatForm {
 	private int point_1_x;
 	private int point_1_y;
 	private int point_2_x;
 	private int point_2_y;
+	private int vec = 5;
 
 	public PlatForm(int x1, int y1, int x2, int y2) {
 		point_1_x = x1 - 10;
 		point_1_y = y1;
 		point_2_x = x2 - 10;
 		point_2_y = y2;
+		vec = 5;
 	}
 
 	public int getPoint_1_x() {
@@ -27,6 +30,10 @@ public class PlatForm {
 
 	public int getPoint_2_y() {
 		return point_2_y;
+	}
+
+	public int getVec() {
+		return vec;
 	}
 
 	public void setPoint_1_x(int point_1_x) {
@@ -58,6 +65,10 @@ public class PlatForm {
 	public void setPoint(int point_1_x, int point_1_y) {
 		this.setPoint_1(point_1_x, point_1_y);
 		this.setPoint_2(point_1_x + 150, point_1_y + 30);
+	}
+
+	public void setVec(int vec) {
+		this.vec = vec;
 	}
 
 }
